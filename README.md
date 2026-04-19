@@ -1,39 +1,69 @@
-# PriceChecker
+# PriceChecker Rust Stack (WIP)
 
-Web app created for comparing product price and offers.
+Minimal migration target from Django to Rust + Leptos + MongoDB.
 
-## Project setup
+## What is implemented now
 
-### Mongo (Windows)
+- Shared Rust model for offers and search payloads.
+- Backend search flow (DB-first):
+  - search query
+  - check MongoDB by normalized query
+  - if found: return cached offers
+  - if not found: scrape configured sources, save, return
+- Scraper adapters:
+  - Ceneo
+  - Morele
+  - Media Expert
+  - Komputronik
+  - X-Kom
+  - Google search results (up to 3 entries, price can be `N/A`)
+- Leptos frontend starter app that calls backend `/api/search` and renders result table.
 
-1. Install MongoDB Community Server from the [official site](https://www.mongodb.com/try/download/community)
-2. Add Monogo to `PATH`:
+## Current architecture
 
-- go to enviornment variables
-- change environmanet variables
-- in system variables look for PATH
-- add new entry `your_path_to_mongo\MongoDB\Server\your_version`
+- `shared` crate: data contracts and normalization.
+- `backend` crate: Axum API + Mongo repository + scrapers + orchestration.
+- `frontend` crate: Leptos CSR app (Trunk).
 
-3. Create folder `data/db` in main C folder (your path should look like that `C:\data\db`)
-4. Run CMD in this directory `mongod` command
+## Required env (backend)
 
-### Django and virtual env
+Add to `.env` and adjust values if needed:
 
-1. Make sure you're in the topmost `kernel` directory
-2. Create virtual environment `python3 -m venv .venv`
-3. Install dependencies `pip install requirements.txt`
-4. Run migrations `python manage.py migrate`
-5. Start the server `invoke runserver`
+- `MONGO_URI`
+- `MONGO_DB`
+- `MONGO_COLLECTION`
+- `RUST_LOG`
+- optional: `BIND_ADDR`
 
-### Optional stuff
+## Run backend
 
-- Install MongoDB Compass to see and manage your data with a GUI
+```powershell
+cd core
+cargo run -p price-check-service
+```
 
-## Packages
+Backend listens on `http://127.0.0.1:8080` by default.
 
-- beautifulsoup4==4.12.3
-- Django==4.2.7
-- django_environ==0.11.2
-- invoke==2.2.0
-- pymongo==4.7.2
-- selenium==4.21.0
+## Run frontend
+
+Install Trunk if needed:
+
+```powershell
+cargo install trunk
+```
+
+Run frontend:
+
+```powershell
+cd rust-stack/ui
+trunk serve --open
+```
+
+Frontend calls backend at `http://127.0.0.1:8080/api/search`.
+
+## Notes
+
+- No re-scrape logic is included (as requested).
+- No Celery/Redis/task queue in this stack.
+- Google scraping is best-effort and can fail due SERP changes/rate limiting.
+- CSS selectors are intentionally simple for v1 and may need tuning.
