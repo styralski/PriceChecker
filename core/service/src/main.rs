@@ -5,7 +5,12 @@ mod service;
 
 use std::sync::Arc;
 
-use axum::{extract::State, response::Html, routing::{get, post}, Form, Json, Router};
+use axum::{
+    Form, Json, Router,
+    extract::State,
+    response::Html,
+    routing::{get, post},
+};
 use config::AppConfig;
 use db::OfferRepository;
 use dotenvy::dotenv;
@@ -25,6 +30,12 @@ struct SearchForm {
     query: String,
 }
 
+#[derive(Deserialize)]
+struct OffersRequest {
+    query: Option<String>,
+    sort: Option<String>,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().ok();
@@ -36,7 +47,8 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let cfg = AppConfig::from_env();
-    let repo = OfferRepository::connect(&cfg.mongo_uri, &cfg.mongo_db, &cfg.mongo_collection).await?;
+    let repo =
+        OfferRepository::connect(&cfg.mongo_uri, &cfg.mongo_db, &cfg.mongo_collection).await?;
     repo.ensure_indexes().await?;
 
     let http = scrapers::build_client()?;
@@ -46,6 +58,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/", get(index))
         .route("/search", post(search_form))
         .route("/api/search", post(search_json))
+        .route("/api/offers", post(offers_json))
         .layer(CorsLayer::permissive())
         .with_state(AppState { search });
 
@@ -94,17 +107,43 @@ async fn search_form(State(state): State<AppState>, Form(form): Form<SearchForm>
             Html(format!(
                 "<!doctype html><html><body><h2>Query: {}</h2><p>Source: {}</p><table border='1'><tr><th>Product Title</th><th>Shop Name</th><th>Price</th><th>Link</th><th>Timestamp</th></tr>{}</table><p><a href='/'>Back</a></p></body></html>",
                 html_escape(&result.query),
-                if result.from_cache { "DB cache" } else { "Fresh scrape" },
+                if result.from_cache {
+                    "DB cache"
+                } else {
+                    "Fresh scrape"
+                },
                 rows
             ))
         }
-        Err(err) => Html(format!("<p>Search failed: {}</p><p><a href='/'>Back</a></p>", html_escape(&err.to_string()))),
+        Err(err) => Html(format!(
+            "<p>Search failed: {}</p><p><a href='/'>Back</a></p>",
+            html_escape(&err.to_string())
+        )),
     }
 }
 
-async fn search_json(State(state): State<AppState>, Json(req): Json<SearchRequest>) -> Json<serde_json::Value> {
+async fn search_json(
+    State(state): State<AppState>,
+    Json(req): Json<SearchRequest>,
+) -> Json<serde_json::Value> {
     match state.search.search(&req.query).await {
         Ok(result) => Json(serde_json::json!({ "ok": true, "data": result })),
+        Err(err) => Json(serde_json::json!({ "ok": false, "error": err.to_string() })),
+    }
+}
+
+async fn offers_json(
+    State(state): State<AppState>,
+    Json(req): Json<OffersRequest>,
+) -> Json<serde_json::Value> {
+    let sort_asc = matches!(req.sort.as_deref(), Some("asc" | "ASC" | "Asc"));
+
+    match state
+        .search
+        .list_offers(req.query.as_deref(), sort_asc)
+        .await
+    {
+        Ok(offers) => Json(serde_json::json!({ "ok": true, "data": offers })),
         Err(err) => Json(serde_json::json!({ "ok": false, "error": err.to_string() })),
     }
 }

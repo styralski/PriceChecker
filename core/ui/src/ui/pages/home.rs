@@ -56,6 +56,9 @@ pub fn home_page() -> impl IntoView {
     let (error, set_error) = signal(None::<String>);
     let (offers, set_offers) = signal(Vec::<Offer>::new());
     let (from_cache, set_from_cache) = signal(false);
+    let set_query_apple = set_query;
+    let set_query_xbox = set_query;
+    let set_query_switch = set_query;
 
     let on_submit = move |ev: web_sys::SubmitEvent| {
         ev.prevent_default();
@@ -83,7 +86,8 @@ pub fn home_page() -> impl IntoView {
                         set_from_cache.set(false);
                         set_offers.set(demo_offers(&q));
                         set_error.set(Some(
-                            "Backend is offline, showing demo offers so you can work on UI.".to_string(),
+                            "Backend is offline, showing demo offers so you can work on UI."
+                                .to_string(),
                         ));
                     } else {
                         let parsed = resp.json::<ApiResponse>().await;
@@ -105,7 +109,8 @@ pub fn home_page() -> impl IntoView {
                                 set_from_cache.set(false);
                                 set_offers.set(demo_offers(&q));
                                 set_error.set(Some(
-                                    "Backend response was not JSON, showing demo offers.".to_string(),
+                                    "Backend response was not JSON, showing demo offers."
+                                        .to_string(),
                                 ));
                             }
                         }
@@ -146,9 +151,32 @@ pub fn home_page() -> impl IntoView {
                         {move || if loading.get() { "Searching..." } else { "Search Offers" }}
                     </button>
                 </div>
-                <p class="hint">
-                    "Try: apple watch 10, xbox series s, nintendo switch oled"
-                </p>
+                <div class="suggestion-wrap">
+                    <p class="hint">"Try:"</p>
+                    <div class="suggestion-list">
+                        <button
+                            type="button"
+                            class="suggestion-chip"
+                            on:click=move |_| set_query_apple.set("apple watch 10".to_string())
+                        >
+                            "apple watch 10"
+                        </button>
+                        <button
+                            type="button"
+                            class="suggestion-chip"
+                            on:click=move |_| set_query_xbox.set("xbox series s".to_string())
+                        >
+                            "xbox series s"
+                        </button>
+                        <button
+                            type="button"
+                            class="suggestion-chip"
+                            on:click=move |_| set_query_switch.set("nintendo switch oled".to_string())
+                        >
+                            "nintendo switch oled"
+                        </button>
+                    </div>
+                </div>
             </form>
 
             <Show when=move || error.get().is_some()>

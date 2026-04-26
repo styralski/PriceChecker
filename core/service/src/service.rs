@@ -2,10 +2,13 @@ use std::collections::HashSet;
 
 use chrono::Utc;
 use futures::future::join_all;
-use price_check_shared::{normalize_query, split_keywords, Offer, SearchResponse};
+use price_check_shared::{Offer, SearchResponse, normalize_query, split_keywords};
 use reqwest::Client;
 
-use crate::{db::OfferRepository, scrapers::{default_scrapers, RawOffer}};
+use crate::{
+    db::OfferRepository,
+    scrapers::{RawOffer, default_scrapers},
+};
 
 #[derive(Clone)]
 pub struct SearchService {
@@ -37,7 +40,9 @@ impl SearchService {
         for scraper in scrapers {
             let client = self.http.clone();
             let q = normalized.clone();
-            tasks.push(tokio::spawn(async move { scraper.scrape(&client, &q).await.unwrap_or_default() }));
+            tasks.push(tokio::spawn(async move {
+                scraper.scrape(&client, &q).await.unwrap_or_default()
+            }));
         }
 
         let task_results = join_all(tasks).await;
@@ -70,6 +75,14 @@ impl SearchService {
             offers,
         })
     }
+
+    pub async fn list_offers(
+        &self,
+        query: Option<&str>,
+        sort_asc: bool,
+    ) -> anyhow::Result<Vec<Offer>> {
+        self.repo.list_offers(query, sort_asc).await
+    }
 }
 
 fn deduplicate(items: Vec<RawOffer>) -> Vec<RawOffer> {
@@ -77,7 +90,11 @@ fn deduplicate(items: Vec<RawOffer>) -> Vec<RawOffer> {
     let mut output = Vec::new();
 
     for item in items {
-        let key = format!("{}|{}", item.shop_name.to_lowercase(), item.link.to_lowercase());
+        let key = format!(
+            "{}|{}",
+            item.shop_name.to_lowercase(),
+            item.link.to_lowercase()
+        );
         if seen.insert(key) {
             output.push(item);
         }

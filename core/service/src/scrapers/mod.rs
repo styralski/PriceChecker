@@ -1,8 +1,8 @@
 use anyhow::Context;
 use async_trait::async_trait;
-use reqwest::{header, Client};
+use reqwest::{Client, header};
 use scraper::{Html, Selector};
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 #[derive(Debug, Clone)]
 pub struct RawOffer {
@@ -39,7 +39,12 @@ fn parse_selector(selector: &str) -> Option<Selector> {
 }
 
 fn text(node: scraper::ElementRef<'_>) -> String {
-    node.text().collect::<Vec<_>>().join(" ").split_whitespace().collect::<Vec<_>>().join(" ")
+    node.text()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn absolutize(base: &str, maybe_relative: &str) -> String {

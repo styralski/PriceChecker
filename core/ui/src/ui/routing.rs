@@ -4,7 +4,7 @@ use leptos_router::{
     path,
 };
 
-use super::pages::{AboutPage, HomePage};
+use super::pages::{AboutPage, HomePage, ShowAllPage};
 use super::styles::APP_STYLES;
 
 #[component]
@@ -25,7 +25,7 @@ pub fn app() -> impl IntoView {
                     <nav class="desktop-nav">
                         <A href="/">"Home"</A>
                         <A href="/about">"About"</A>
-                        <a href="/#results">"Show All"</a>
+                        <A href="/offers">"Show All"</A>
                     </nav>
 
                     <button class="menu-btn" on:click=move |_| set_menu_open.update(|v| *v = !*v)>
@@ -41,15 +41,16 @@ pub fn app() -> impl IntoView {
                         <A href="/about" on:click=move |_| set_menu_open.set(false)>
                             "About"
                         </A>
-                        <a href="/#results" on:click=move |_| set_menu_open.set(false)>
+                        <A href="/offers" on:click=move |_| set_menu_open.set(false)>
                             "Show All"
-                        </a>
+                        </A>
                     </nav>
                 </Show>
 
                 <Routes fallback=|| view! { <p class="panel">"Page not found."</p> }>
                     <Route path=path!("/") view=HomePage />
                     <Route path=path!("/about") view=AboutPage />
+                    <Route path=path!("/offers") view=ShowAllPage />
                 </Routes>
             </Router>
         </main>
