@@ -27,7 +27,7 @@ Minimal migration target from Django to Rust + Leptos + MongoDB.
 
 ## Required env (backend)
 
-Add to `.env` and adjust values if needed:
+Add to `.env` and adjust DB values:
 
 - `MONGO_URI`
 - `MONGO_DB`
