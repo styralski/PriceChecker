@@ -223,6 +223,39 @@ body {
     font-size: 0.92rem;
 }
 
+.suggestion-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.suggestion-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.suggestion-chip {
+    border: 1px solid #b7d2c0;
+    border-radius: 999px;
+    background: #f1fbf5;
+    color: #1f5a3c;
+    font-weight: 600;
+    font-size: 0.86rem;
+    padding: 0.34rem 0.72rem;
+    cursor: pointer;
+}
+
+.suggestion-chip:hover {
+    background: #e7f8ee;
+    border-color: #9ec6af;
+}
+
+.suggestion-chip:focus-visible {
+    outline: 2px solid rgba(28, 122, 70, 0.45);
+    outline-offset: 2px;
+}
+
 .status {
     margin-top: 0.8rem;
     padding: 0.65rem 0.8rem;
@@ -361,6 +394,150 @@ body {
     animation: shimmer 1.2s linear infinite;
 }
 
+.db-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin: 0.7rem 0 1rem;
+}
+
+.db-search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 280px;
+}
+
+.search-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: white;
+    display: grid;
+    place-items: center;
+    color: #2b5f45;
+}
+
+.db-search-form input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #bfd2c3;
+    border-radius: 12px;
+    background: white;
+    padding: 0.72rem 0.9rem;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.db-search-form input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(28, 122, 70, 0.12);
+}
+
+.db-search-form button {
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color: white;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    padding: 0.72rem 1rem;
+    cursor: pointer;
+}
+
+.db-search-form button[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.db-date-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.db-date-filter label {
+    color: #3f5f50;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.db-date-filter input {
+    border: 1px solid #bfd2c3;
+    border-radius: 10px;
+    background: white;
+    color: var(--ink);
+    font-size: 0.9rem;
+    padding: 0.55rem 0.65rem;
+    outline: none;
+}
+
+.db-date-filter input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(28, 122, 70, 0.12);
+}
+
+.sort-buttons {
+    display: inline-flex;
+    gap: 0.45rem;
+}
+
+.sort-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: white;
+    color: #2b5f45;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.sort-btn.active {
+    color: white;
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.offers-table {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: collapse;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.offers-table th,
+.offers-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.72rem 0.82rem;
+    border-bottom: 1px solid rgba(17, 60, 38, 0.08);
+}
+
+.offers-table th {
+    background: #eef7f1;
+    color: #315846;
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.offers-table tbody tr:hover {
+    background: #f6fcf8;
+}
+
 .reveal {
     opacity: 0;
     transform: translateY(12px);
@@ -419,6 +596,19 @@ body {
     .offer-grid,
     .skeleton-grid {
         grid-template-columns: 1fr;
+    }
+
+    .db-search-form {
+        min-width: 100%;
+    }
+
+    .db-date-filter {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .db-date-filter input {
+        flex: 1;
     }
 }
 "#;
